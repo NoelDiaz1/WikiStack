@@ -1,15 +1,28 @@
 const express = require('express')
+const path = require('path')
 const app = express()
+const { db } = require('./models')
 
-app.use(express.static(__dirname + '/public'))
 
+const morgan = require('morgan')
+app.use(express.static(path.join(__dirname, './public')))
+app.use(morgan('dev'))
+
+app.get('/', (request, response) => {
+    response.send('hello world')
+})
+
+db.authenticate().then(() => {
+    console.log('connected to the database')
+})
 
 const PORT = 3000
 
-app.get('/', (request, response) => {
-    response.send('Hello worldsadasd')
-})
-
-app.listen(PORT, () => {
-    console.log(`Sever is running${PORT}`)
-})
+const init = async () => {
+    await db.sync();
+    app.listen(PORT, () => {
+      console.log(`Server is listening on port ${PORT}!`)
+    })
+  }
+  
+  init();
